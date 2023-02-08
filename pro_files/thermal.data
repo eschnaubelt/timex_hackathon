@@ -1,0 +1,108 @@
+// TODO: add geo data for IC here
+Include "w_ins.data";
+
+absTol_CS = 1E-6;
+maxNumIter_CS = 30;
+Ecrit = 1E-4;
+n = 40;
+
+t_init = 0;
+t_end = 100;
+t_step = 0.0001;
+t_theta = 1;
+
+nl_relTol = 1E-4;
+nl_absTol = 1E-2;
+
+nl_relTol_time = 1E-4;
+nl_absTol_time = 1E-2;
+
+
+t_step_break = 1E-6;
+Breakpoints = {10.07, 14.065, 18}; // {t_init+t_step:t_end:t_step_break}; //{t_init:t_end:t_step_break};
+
+
+NMaxIt = 20;
+relaxFactor = 0.9;
+
+magnField = 5;
+
+RRR_Cu = 100;
+Tup_RRR_Cu = 295;
+
+mum = 1E-6;
+mm = 1E-3;
+
+hastelloy_width = 1 * 80 * mum;
+silver_width = 1 * 1 * mum;
+copper_width = 1 * 40 * mum;
+
+// w_Ins = 0.00007;
+
+h_cable = 5*mm;
+
+cable_width = hastelloy_width + silver_width + copper_width;
+f_hastelloy = hastelloy_width/cable_width;
+f_silver = silver_width/cable_width;
+f_copper = copper_width/cable_width;
+
+mu0 = 4 * Pi * 1E-7;
+
+w_cable = cable_width + 2 * w_Ins;
+w_bare = cable_width;
+
+no_turns = 10;
+
+Function {
+  nu[] = 1./mu0;
+//  rho[] = 1E-10;
+n[] = n; 
+
+  init_temp[] = 15;
+
+  center_radius = 5 * mm;
+  tol = 1E-8;
+
+  Tcs[] = 25;
+  Tc[] = 85;
+
+  R[] = Sqrt[X[]^2 + Y[]^2];
+  Phi[] = Atan2[Y[], X[]];
+
+  isBetween[] = $2 < $1 && $1 < $3;
+
+  RSq[] = (X[] - $1)^2 + (Y[] - $2)^2; //+ (Z[] - $3)^2;
+  Sphere[] = RSq[$1, $2, $3] <= ($4)^2;
+
+  r_upper = center_radius + (7 - 1) * w_cable + 1*w_cable/4;
+  r_lower = center_radius + (7 - 2) * w_cable + 1*w_cable/4;
+  phi_lower = Pi/2 - Pi/16;
+  phi_upperer = Pi/2 + Pi/16;
+
+  Hotspot[] = isBetween[R[], r_lower, r_upper] &&
+    isBetween[Phi[], phi_lower, phi_upperer]? 25: init_temp[];
+
+  heat_src[] = isBetween[R[], r_lower, r_upper] &&
+    isBetween[Phi[], phi_lower, phi_upperer]? 1: 0;
+
+  heat_src_plus[] = isBetween[R[], r_lower - w_cable/2, r_upper - w_cable/2] &&
+    isBetween[Phi[], phi_lower, phi_upperer]? 1: 0;
+
+  heat_src_minus[] = isBetween[R[], r_lower + w_cable/2, r_upper + w_cable/2] &&
+    isBetween[Phi[], phi_lower, phi_upperer]? 1: 0;
+
+  overTC[] = $1 > Tc[]? 1: 0;
+
+  order_1D_gauss = 2;
+  corr_fact =  (w_cable/w_bare); //R; //(R[] + w_Ins * 2)/R[];//(w_cable/w_bare); // > 1
+
+  tempStop_2[] = 100;
+
+  heatSrc = 1E10;
+
+  I = 210;
+
+  t_interp[] = ($1 > Tcs[])?
+                  (($1 > Tc[])? 1: ($1 - Tcs[])/(Tc[] - Tcs[]))
+                  : 0;
+}

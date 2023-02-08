@@ -1,0 +1,44 @@
+magnet_name: ni_coil_TSA
+windings:
+  names: [coil_1]
+  current_driven: [0]
+  excitation_amps: [100]
+  heights: [0.005]
+  # FIXME: integer no of turns does not work anymore
+  no_turns: [30.5]
+  inner_rs: [0.005]
+  cable_arc_lengths: [0.005]
+
+  sep_layer_widths:
+  - 1.9999999999999998e-05
+  sep_layer_sigmas: [1]
+  sep_layer_mu_rs: [1]
+  sep_layer_meshed:
+  - false
+  inn_layer_widths: [0.000121]
+  inn_layer_sigmas: [1E-5]
+  inn_layer_mu_rs: [1]
+
+  copper_disk: true
+
+  insulation_height: 0.002
+
+  rs_copper_in: [0.0075]
+  rs_copper_out: [0.0325]
+
+  duplicate_bnd: [true]
+
+air:
+  height: 0.02
+  width: 0.1
+
+mesh:
+  nums_elem_height_coil:
+  - 3
+  nums_elem_height_cable: [3]
+  msh_size_from_curvature:   # currently not used
+  - 20
+  msh_size_max:
+  - 0.001
+  recombine_coil: [false]
+  recombine_cable: [false]
